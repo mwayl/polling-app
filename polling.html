@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="polling.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <title>Document</title>
+     
+
+</head>
+<body class="body"  >
+    
+    <h1 class="heading" id="heading">Poll</h1>
+
+
+    <div class="sidebar" id="sidebar">
+        <h2 class="sidebar_heading">Polling App</h2>
+        <ul>
+            <li style="margin-top: -28px;"><a href="#" class="links"><i class="bi bi-disc-fill"></i>Activity</a></li>
+            <li><a href="#" class="links"><i class="bi bi-receipt"></i>Your work</a></li>
+            <li><a href="#" class="links"><i class="bi bi-folder-fill"></i>Spaces</a></li>
+            <li><a href="#" class="links"><i class="bi bi-people-fill"></i>People</a></li>
+            <li><a href="#" class="links"><i class="bi bi-bar-chart-fill"></i>Poll</a></li>
+            <li><a href="#" class="links"><i class="bi bi-gear"></i>Setting</a></li>
+        </ul>
+        <button class="cross-button" id="cross-button">
+            <i class="bi bi-backspace-fill"></i>
+          </button>
+    </div>
+    <button class="sidebar-toggle" id="sidebar-toggle">
+        <i class="bi bi-list"></i>
+      </button>
+
+    <p class="para">Which Language do you like the most?</p>
+    <p class="para2">Pick the Language you prefer for coding purposes</p>
+
+    <form class="select-choice-form">
+        <input type="radio" name="languages" value="javascript" class="radio_buton" onclick="radioBtn(this)">
+        <input type="radio" name="languages" class="radio_buton" value="python" onclick="radioBtn(this)">
+        <input type="radio" name="languages" class="radio_buton" value="C++" onclick="radioBtn(this)">
+        <input type="radio" name="languages" class="radio_buton" value="ruby" onclick="radioBtn(this)">
+        <input type="radio" name="languages" class="radio_buton" value="java" onclick="radioBtn(this)">
+        <input type="radio" name="languages" class="radio_buton" value="php" onclick="radioBtn(this)">
+    </form>
+
+    <div class="main-div-selection">
+        <div class="select_div" id="div1"><div id="inner_div1" ><h5>Javascript</h5></div><div id="count1"></div></div>
+        <div class="select_div" id="div2"><div id="inner_div2"><h5>Python</h5></div><div id="count2"></div></div>
+        <div class="select_div" id="div3"><div id="inner_div3"><h5>C++</h5></div><div id="count3"></div></div>
+        <div class="select_div" id="div4"><div id="inner_div4"><h5>Ruby</h5></div><div id="count4"></div></div>
+        <div class="select_div" id="div5"><div id="inner_div5"><h5>Java</h5></div><div id="count5"></div></div>
+        <div class="select_div" id="div6"><div id="inner_div6"><h5>PHP</h5></div><div id="count6"></div></div>
+    </div>
+
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { signInWithEmailAndPassword, getAuth } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbCHt27eVXaQL89-mBkt8FQ8FM6VVJC5I",
+          authDomain: "polling--app.firebaseapp.com",
+          projectId: "polling--app",
+          storageBucket: "polling--app.appspot.com",
+          messagingSenderId: "415793497214",
+          appId: "1:415793497214:web:e93ca4b8164d760ca3c42f",
+          measurementId: "G-71RVQRP6PC"
+        }; 
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let hasVoted = false;
+        
+        let countJavascript=0;
+        let countPython=0;
+        let countC=0;
+        let countRuby=0;
+        let countJava=0;
+        let countPhp=0;
+
+
+
+
+        window.radioBtn = async (radio) => {
+            event.preventDefault();
+
+            if (hasVoted) {
+                alert("You have already cast a vote.");
+                return;
+            }
+            let user = auth.currentUser;
+            const querySnapshot = await getDocs(collection(db, "language"));
+            querySnapshot.forEach((doc) => {
+               
+                let email=user.email;
+                if (doc.data().email.includes(email)) {
+                    alert("You have already cast a vote.");
+                    hasVoted = true;
+                    return;
+                }
+               
+            });
+      
+            if (!hasVoted) {
+                const docRef = await addDoc(collection(db, "language"), {
+                    lang: radio.value,
+                    email: user.email,
+                    // countPython:countPython+1,
+                    createdAt: serverTimestamp()
+                });
+
+                // console.log(countPython)
+                console.log("Document with ID: ", docRef.id);
+                alert("You cast Vote to "+radio.value+" successfully.");
+
+                hasVoted = true;
+            }
+
+            const querySnapshots = await getDocs(collection(db, "language"));
+            querySnapshots.forEach((doc) => {
+                // countPython=doc.data().countPython;
+                if(doc.data().lang==="javascript"){
+                    countJavascript=countJavascript+1
+                }
+                if(doc.data().lang==="python"){
+                    countPython=countPython+1
+                }
+                if(doc.data().lang==="C++"){
+                    countC=countC+1
+                }
+                if(doc.data().lang==="ruby"){
+                    countRuby=countRuby+1
+                }
+                if(doc.data().lang==="java"){
+                    countJava=countJava+1
+                }
+                if(doc.data().lang==="php"){
+                    countPhp=countPhp+1
+                }
+            })
+            console.log(countJavascript)
+            console.log(countPython)
+            console.log(countC);
+            console.log(countRuby);
+            console.log(countJava);
+            console.log(countPhp);
+  
+            //calculate the percentage of vote
+
+            let totalcount=countPython+countJavascript+countC+countRuby+countJava+countPhp
+            let percentageOfCountJavascript=Math.floor((countJavascript/totalcount)*100);
+            let percentageOfCountPython=Math.floor((countPython/totalcount)*100);
+            let percentageOfCountC=Math.floor((countC/totalcount)*100);
+            let percentageOfCountRuby=Math.floor((countRuby/totalcount)*100);
+            let percentageOfCountJava=Math.floor((countJava/totalcount)*100);
+            let percentageOfCountPhp=Math.floor((countPhp/totalcount)*100);
+
+
+            console.log(percentageOfCountJavascript)
+            console.log(percentageOfCountPython)
+            
+           // Adding color related to percentage of vote
+
+            var element1 = document.getElementById("inner_div1");
+            element1.style.width=percentageOfCountJavascript+ "%";
+            element1.classList.add("innerdiv1")
+
+            var element2 = document.getElementById("inner_div2");
+            element2.style.width=percentageOfCountPython+ "%";
+            element2.classList.add("innerdiv2")
+
+            var element3 = document.getElementById("inner_div3");
+            element3.style.width=percentageOfCountC+ "%";
+            element3.classList.add("innerdiv3")
+            var element4 = document.getElementById("inner_div4");
+            element4.style.width=percentageOfCountRuby+ "%";
+            element4.classList.add("innerdiv4")
+
+            var element5 = document.getElementById("inner_div5");
+            element5.style.width=percentageOfCountJava+ "%";
+            element5.classList.add("innerdiv5")
+
+            var element6 = document.getElementById("inner_div6");
+            element6.style.width=percentageOfCountPhp+ "%";
+            element6.classList.add("innerdiv6")
+         
+            //adding percentage and counter on div
+
+             var counter1=document.getElementById("count1");
+             counter1.innerHTML=countJavascript+" | "+percentageOfCountJavascript+"%";
+             counter1.classList.add("count")
+
+             var counter2=document.getElementById("count2");
+             counter2.innerHTML=countPython+" | "+percentageOfCountPython+"%";
+             counter2.classList.add("count")
+
+             var counter3=document.getElementById("count3");
+             counter3.innerHTML=countC+" | "+percentageOfCountC+"%";
+             counter3.classList.add("count")
+
+             var counter4=document.getElementById("count4");
+             counter4.innerHTML=countRuby+" | "+percentageOfCountRuby+"%";
+             counter4.classList.add("count")
+
+             var counter5=document.getElementById("count5");
+             counter5.innerHTML=countJava+" | "+percentageOfCountJava+"%";
+             counter5.classList.add("count")
+
+             var counter6=document.getElementById("count6");
+             counter6.innerHTML=countPhp+" | "+percentageOfCountPhp+"%";
+             counter6.classList.add("count")
+
+             
+
+
+            // console.log(doc.data().countPython)
+        };
+     
+     
+
+const elements=document.getElementById("sidebar-toggle");
+elements.addEventListener("click",  function toggleSidebar() {
+   
+  const sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("sidebar-open");
+  
+//   const heading=document.getElementsById("heading");
+//   heading.innerHTML="wayl"
+
+})
+const cross=document.getElementById("cross-button");  
+cross.addEventListener("click",  function cross() {
+    alert("paki")
+ 
+   const sidebar = document.getElementById("sidebar");
+   sidebar.classList.toggle("sidebar-close");
+
+ })   
+
+
+     
+    </script>
+</body>
+</html>
+
